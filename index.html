@@ -2,85 +2,247 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Screenshot Studio — free App Store screenshot maker</title>
-<meta name="description" content="Drop in app screenshots, add a headline, pick a template and export App Store-ready images for every iPhone, iPhone Duo and iPad size. Free, runs entirely in your browser.">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Screenshot Studio — Free App Store &amp; Google Play Screenshot Maker</title>
+<meta name="description" content="Free App Store screenshot generator. Make iPhone, iPad and Android (Google Play) screenshots with device mockups, headlines, 45+ fonts including Thai, templates and gradients. Portrait and landscape, exact store sizes, no sign-up, no watermark, runs in your browser.">
+<meta name="keywords" content="app store screenshot maker, app store screenshot generator, free app screenshot maker, google play screenshot generator, iphone screenshot mockup, ipad screenshot maker, android screenshot maker, app store connect screenshot sizes, ASO screenshots, app mockup generator, device frame screenshot, play store screenshot size, landscape app screenshots, โปรแกรมทำสกรีนช็อต App Store, ทำภาพหน้าจอแอป, สร้างสกรีนช็อตแอปฟรี">
+<meta name="author" content="Suwitcha Sugthana">
+<meta name="robots" content="index, follow, max-image-preview:large">
+<meta name="theme-color" content="#16181e">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Screenshot Studio">
+<link rel="canonical" href="https://pond1982.github.io/screenshot-studio/">
+<link rel="alternate" hreflang="en" href="https://pond1982.github.io/screenshot-studio/">
+<link rel="alternate" hreflang="x-default" href="https://pond1982.github.io/screenshot-studio/">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop stop-color='%238b7dff'/%3E%3Cstop offset='1' stop-color='%23ff7ab6'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect x='14' y='4' width='36' height='56' rx='10' fill='url(%23g)'/%3E%3C/svg%3E">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Screenshot Studio">
+<meta property="og:title" content="Screenshot Studio — Free App Store &amp; Google Play Screenshot Maker">
+<meta property="og:description" content="Design store-ready iPhone, iPad and Android screenshots in your browser. Templates, device mockups, Thai fonts, portrait and landscape. Free, no sign-up, no watermark.">
+<meta property="og:url" content="https://pond1982.github.io/screenshot-studio/">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Screenshot Studio — Free App Store &amp; Google Play Screenshot Maker">
+<meta name="twitter:description" content="Design store-ready iPhone, iPad and Android screenshots in your browser. Free, no sign-up, no watermark.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="styles.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "WebApplication",
+      "name": "Screenshot Studio",
+      "url": "https://pond1982.github.io/screenshot-studio/",
+      "description": "Free App Store and Google Play screenshot maker with device mockups, templates, Thai fonts and exact store sizes. Runs entirely in the browser.",
+      "applicationCategory": "DesignApplication",
+      "operatingSystem": "Any",
+      "browserRequirements": "Requires JavaScript and a modern browser",
+      "inLanguage": ["en", "th"],
+      "isAccessibleForFree": true,
+      "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+      "featureList": [
+        "App Store Connect screenshot sizes for iPhone and iPad",
+        "Google Play screenshot sizes for Android phones and tablets",
+        "Portrait and landscape export",
+        "Device mockup frames",
+        "Thai and Latin fonts",
+        "ZIP export with one folder per size"
+      ],
+      "author": { "@type": "Person", "name": "Suwitcha Sugthana", "url": "https://apps.apple.com/pk/developer/suwitcha-sugthana/id372726303" }
+    },
+    {
+      "@type": "FAQPage",
+      "mainEntity": [
+        { "@type": "Question", "name": "Is Screenshot Studio free?", "acceptedAnswer": { "@type": "Answer", "text": "Yes. It is free, has no sign-up and adds no watermark." } },
+        { "@type": "Question", "name": "Are my screenshots uploaded anywhere?", "acceptedAnswer": { "@type": "Answer", "text": "No. Images are rendered in your browser and saved only on your device." } },
+        { "@type": "Question", "name": "What screenshot sizes does App Store Connect need?", "acceptedAnswer": { "@type": "Answer", "text": "A 6.9-inch iPhone set (1320 × 2868) covers iPhones, and a 13-inch iPad set (2064 × 2752) covers iPads. App Store Connect scales those down for smaller devices. Screenshot Studio exports these and every other accepted size." } },
+        { "@type": "Question", "name": "What size are Google Play screenshots?", "acceptedAnswer": { "@type": "Answer", "text": "Google Play accepts 16:9 or 9:16 screenshots; 1080 × 1920 is the usual phone size, with 1200 × 1920 and 1600 × 2560 for tablets. Up to 8 screenshots per device type." } },
+        { "@type": "Question", "name": "Can I make landscape screenshots?", "acceptedAnswer": { "@type": "Answer", "text": "Yes. Switch the orientation to Landscape and every size is exported rotated, which suits games and iPad apps." } },
+        { "@type": "Question", "name": "Does it support Thai text?", "acceptedAnswer": { "@type": "Answer", "text": "Yes. It includes Thai fonts such as Kanit, Prompt, Sarabun, Mitr and Noto Sans Thai, and wraps Thai text at word boundaries." } }
+      ]
+    }
+  ]
+}
+</script>
 </head>
 <body>
 <header class="bar">
-  <div class="brand"><span class="logo" aria-hidden="true"></span>Screenshot Studio</div>
-  <div class="seg" id="familyTabs" role="tablist" aria-label="Preview device">
-    <button data-family="iphone" class="on">iPhone</button>
-    <button data-family="duo">iPhone Duo</button>
-    <button data-family="ipad">iPad</button>
-  </div>
-  <button class="primary" id="openExport">Export…</button>
+  <h1 class="brand"><span class="logo" aria-hidden="true"></span><span>Screenshot Studio</span></h1>
+  <a class="credit" href="https://apps.apple.com/pk/developer/suwitcha-sugthana/id372726303" target="_blank" rel="noopener" title="Like this tool? Support me by downloading my apps">♥ <span>Support</span></a>
+  <button id="reset" title="Start a new project">New</button>
+  <button id="savePng" title="Save the current slide as a PNG">PNG</button>
+  <button class="primary" id="openExport">Export</button>
 </header>
 
 <main>
-  <aside class="panel">
-    <section>
-      <h2>Slide <span id="slideNo"></span></h2>
-      <label class="fld">Headline
-        <textarea id="headline" rows="2" placeholder="What does this screen do for people?"></textarea>
-      </label>
-      <label class="fld">Subtitle
-        <textarea id="subtitle" rows="2" placeholder="Optional supporting line"></textarea>
-      </label>
-      <div class="fld">Screenshots for this slide
-        <div class="slots" id="slots">
-          <div class="slot" data-family="iphone"><button class="pick"><span>iPhone</span></button><button class="clear" title="Remove">×</button></div>
-          <div class="slot" data-family="duo"><button class="pick"><span>Duo</span></button><button class="clear" title="Remove">×</button></div>
-          <div class="slot" data-family="ipad"><button class="pick"><span>iPad</span></button><button class="clear" title="Remove">×</button></div>
-        </div>
-        <p class="hint">Or drop images anywhere — they are sorted into iPhone, Duo and iPad by their pixel size.</p>
-      </div>
-    </section>
-
-    <section>
-      <h2>Template</h2>
-      <div class="tpls" id="tpls"></div>
-      <label class="check"><input type="checkbox" id="linkTpl" checked> Use the same template on every slide</label>
-    </section>
-
-    <section>
-      <h2>Background</h2>
-      <div class="swatches" id="swatches"></div>
-      <div class="row">
-        <label class="color"><input type="color" id="c1"> From</label>
-        <label class="color"><input type="color" id="c2"> To</label>
-        <label class="grow">Angle <input type="range" id="angle" min="0" max="360" step="5"></label>
-      </div>
-      <div class="fld">Decoration
-        <div class="chips" id="decos"></div>
-      </div>
-    </section>
-
-    <section>
-      <h2>Text</h2>
-      <div class="fld">Font
-        <div class="chips" id="fonts"></div>
-      </div>
-      <div class="row">
-        <label class="check"><input type="checkbox" id="autoText" checked> Auto colour</label>
-        <label class="color"><input type="color" id="textColor"> Custom</label>
-      </div>
-      <label class="fld">Size <input type="range" id="headScale" min="0.7" max="1.4" step="0.02"></label>
-    </section>
-
-    <section>
-      <h2>Device frame</h2>
-      <div class="chips" id="frames"></div>
-    </section>
-
-    <p class="foot">Free. Everything is rendered in your browser — your screenshots are never uploaded.</p>
-  </aside>
-
-  <section class="stage">
-    <div class="canvasWrap"><canvas id="preview"></canvas></div>
+  <section class="stage" aria-label="Preview">
+    <div class="devbar">
+      <div class="seg" id="familyTabs" role="tablist" aria-label="Preview device"></div>
+      <button id="orient" title="Switch between portrait and landscape">Portrait</button>
+    </div>
+    <div class="canvasWrap"><canvas id="preview" aria-label="Screenshot preview"></canvas></div>
     <div class="film" id="film"></div>
   </section>
+
+  <aside class="panel">
+    <nav class="tabs" aria-label="Editor sections">
+      <button data-tab="content" class="on">Content</button>
+      <button data-tab="layout">Layout</button>
+      <button data-tab="style">Style</button>
+      <button data-tab="text">Text</button>
+      <button data-tab="device">Device</button>
+      <button data-tab="about">About</button>
+    </nav>
+    <div class="panel-body">
+
+    <div class="tab" data-tab="content">
+      <section>
+        <h2>Slide <span id="slideNo"></span></h2>
+        <label class="fld">Headline
+          <textarea data-s="headline" rows="2" placeholder="What does this screen do for people?"></textarea>
+        </label>
+        <p class="hint">Wrap words in *asterisks* to highlight them. Thai and other languages work.</p>
+        <label class="fld">Subtitle
+          <textarea data-s="subtitle" rows="2" placeholder="Optional supporting line"></textarea>
+        </label>
+        <label class="fld">Label above headline
+          <input type="text" data-s="eyebrow" placeholder="e.g. NEW · Editor's Choice">
+        </label>
+        <label class="fld">Award / rating badge
+          <input type="text" data-s="badge" placeholder="e.g. 4.9 ★ | 120K ratings">
+        </label>
+        <p class="hint">Use | to split the badge into two lines.</p>
+      </section>
+      <section>
+        <h2>Screenshots for this slide</h2>
+        <div class="slots" id="slots"></div>
+        <div class="row"><button type="button" id="addMany">Add screenshots…</button></div>
+        <p class="hint">Or drop or paste images anywhere. They are sorted into iPhone, iPad and Android by their pixel size, and a missing device borrows another one's screenshot.</p>
+      </section>
+    </div>
+
+    <div class="tab" data-tab="layout" hidden>
+      <section>
+        <h2>Template</h2>
+        <div class="tpls" id="tpls"></div>
+        <label class="check"><input type="checkbox" id="linkTpl" checked> Use the same template on every slide</label>
+      </section>
+      <section>
+        <h2>Composition</h2>
+        <label class="fld">Device size <input type="range" data-k="devScale" min="0.7" max="1.3" step="0.01"></label>
+        <label class="check"><input type="checkbox" id="pano"> Panoramic background that continues across slides</label>
+        <p class="hint">Pair it with the Panorama template to split one device across two slides.</p>
+      </section>
+    </div>
+
+    <div class="tab" data-tab="style" hidden>
+      <section>
+        <h2>Themes</h2>
+        <div class="themes" id="themes"></div>
+        <div class="row"><button type="button" id="shuffle">Surprise me</button></div>
+      </section>
+      <section>
+        <h2>Background</h2>
+        <div class="chips" data-k="bgType"></div>
+        <div class="row" data-show="bgType=linear,radial,mesh,solid">
+          <label class="color"><input type="color" data-k="c1"> 1</label>
+          <label class="color" data-show="bgType=linear,radial,mesh"><input type="color" data-k="c2"> 2</label>
+          <label class="color" data-show="bgType=mesh"><input type="color" data-k="c3"> 3</label>
+          <label class="grow" data-show="bgType=linear">Angle <input type="range" data-k="angle" min="0" max="360" step="5"></label>
+        </div>
+        <div data-show="bgType=image">
+          <div class="row"><button type="button" id="bgPick">Choose photo…</button></div>
+          <label class="fld">Blur <input type="range" data-k="bgBlur" min="0" max="1" step="0.02"></label>
+          <label class="fld">Darken <input type="range" data-k="bgDim" min="0" max="0.85" step="0.01"></label>
+        </div>
+        <div class="swatches" id="swatches" data-show="bgType=linear,radial,mesh,solid"></div>
+      </section>
+      <section>
+        <h2>Decoration</h2>
+        <div class="chips" data-k="deco"></div>
+        <label class="check" style="margin-top:10px"><input type="checkbox" data-k="grain"> Film grain</label>
+      </section>
+      <section>
+        <h2>Per-slide colours</h2>
+        <label class="check"><input type="checkbox" data-k="rotate"> Give each slide its own colour</label>
+        <label class="fld" data-show="rotate=true" style="margin-top:10px">Colour step <input type="range" data-k="rotateStep" min="10" max="120" step="5"></label>
+      </section>
+    </div>
+
+    <div class="tab" data-tab="text" hidden>
+      <section>
+        <h2>Fonts</h2>
+        <label class="fld">Headline font <select data-k="font"></select></label>
+        <label class="fld">Subtitle font <select data-k="subFont"></select></label>
+        <div class="fld">Weight <div class="chips" data-k="weight"></div></div>
+        <label class="fld">Headline size <input type="range" data-k="headScale" min="0.6" max="1.6" step="0.02"></label>
+        <label class="fld">Subtitle size <input type="range" data-k="subScale" min="0.6" max="1.8" step="0.02"></label>
+      </section>
+      <section>
+        <h2>Style</h2>
+        <div class="fld">Alignment <div class="chips" data-k="align"></div></div>
+        <div class="row">
+          <label class="check"><input type="checkbox" data-k="autoText"> Auto colour</label>
+          <label class="color"><input type="color" data-k="textColor"> Custom</label>
+        </div>
+        <div class="row">
+          <label class="check"><input type="checkbox" data-k="upper"> UPPERCASE</label>
+          <label class="check"><input type="checkbox" data-k="textShadow"> Shadow</label>
+        </div>
+      </section>
+      <section>
+        <h2>Highlight &amp; badge</h2>
+        <div class="fld">Highlight style <div class="chips" data-k="hl"></div></div>
+        <div class="row"><label class="color"><input type="color" data-k="accent"> Accent colour</label></div>
+        <div class="fld">Badge style <div class="chips" data-k="badgeStyle"></div></div>
+      </section>
+    </div>
+
+    <div class="tab" data-tab="device" hidden>
+      <section>
+        <h2>Device frame</h2>
+        <div class="chips" data-k="frame"></div>
+      </section>
+      <section>
+        <h2>Shadow</h2>
+        <div class="chips" data-k="shadow"></div>
+        <label class="check" style="margin-top:10px"><input type="checkbox" data-k="glare"> Screen reflection</label>
+      </section>
+    </div>
+
+    <div class="tab about" data-tab="about" hidden>
+      <section>
+        <h2>Free App Store &amp; Google Play screenshot maker</h2>
+        <p>Screenshot Studio is a free app screenshot generator. Drop in your screenshots, write a headline, pick a template and export store-ready images for <strong>iPhone, iPad and Android</strong> in the exact sizes App Store Connect and Google Play Console accept.</p>
+        <ul>
+          <li>Device mockups for iPhone, iPad, Android phones and tablets</li>
+          <li>15 layouts: tilted, isometric, panorama, close-up, text only and more</li>
+          <li>45+ fonts, with Thai fonts such as Kanit, Prompt, Sarabun and Mitr</li>
+          <li>Gradient, mesh, photo and patterned backgrounds, plus one-tap themes</li>
+          <li>Rating and award badges, labels and highlighted keywords</li>
+          <li>Portrait and landscape, PNG or JPEG, one ZIP with a folder per size</li>
+          <li>No sign-up, no watermark, nothing uploaded. Works on phones too</li>
+        </ul>
+      </section>
+      <section>
+        <h2>Questions</h2>
+        <details><summary>What sizes does App Store Connect need?</summary><p>A 6.9″ iPhone set (1320 × 2868) and a 13″ iPad set (2064 × 2752) are enough for most apps, because App Store Connect scales them down for smaller devices. You can upload up to 10 screenshots per size.</p></details>
+        <details><summary>What size are Google Play screenshots?</summary><p>16:9 or 9:16, commonly 1080 × 1920 for phones, 1200 × 1920 for 7″ tablets and 1600 × 2560 for 10″ tablets. Google Play takes up to 8 per device type.</p></details>
+        <details><summary>Can I make landscape screenshots for games?</summary><p>Yes. Tap Portrait above the preview to switch to Landscape. Every export size is rotated.</p></details>
+        <details><summary>Are my screenshots private?</summary><p>Yes. Everything is drawn in your browser. Your project is saved only on this device so you can come back to it.</p></details>
+        <details><summary>ใช้ภาษาไทยได้ไหม?</summary><p lang="th">ได้ พิมพ์หัวข้อภาษาไทยได้เลย มีฟอนต์ไทยให้เลือก เช่น Kanit, Prompt, Sarabun, Mitr และตัดคำภาษาไทยให้อัตโนมัติ ใช้ทำสกรีนช็อต App Store และ Google Play ได้ฟรี</p></details>
+      </section>
+      <section class="support">
+        <h2>Made by Suwitcha Sugthana</h2>
+        <p>If you like this tool, please support me by downloading or buying my apps on the App Store.</p>
+        <a class="cta" href="https://apps.apple.com/pk/developer/suwitcha-sugthana/id372726303" target="_blank" rel="noopener">♥ See my apps on the App Store</a>
+      </section>
+    </div>
+
+    <p class="foot">Free, no watermark. Rendered in your browser — your screenshots are never uploaded. Made by <a href="https://apps.apple.com/pk/developer/suwitcha-sugthana/id372726303" target="_blank" rel="noopener">Suwitcha Sugthana</a> — if you like it, support me by downloading my apps.</p>
+    </div>
+  </aside>
 </main>
 
 <div class="dropveil" id="dropveil"><div>Drop screenshots to add them</div></div>
@@ -89,11 +251,13 @@
 
 <dialog id="exportDlg">
   <form method="dialog">
-    <h2>Export for App Store Connect</h2>
-    <p class="hint">Portrait sizes from Apple's screenshot specifications. App Store Connect scales down from the largest size in each group, so the pre-ticked ones are enough for most apps.</p>
+    <h2>Export screenshots</h2>
+    <p class="hint">Sizes from Apple's and Google's screenshot specifications. The stores scale down from the largest size in each group, so the recommended ones are enough for most apps.</p>
     <div class="row quick">
       <button type="button" data-quick="required">Recommended</button>
-      <button type="button" data-quick="all">All sizes</button>
+      <button type="button" data-quick="ios">App Store</button>
+      <button type="button" data-quick="android">Google Play</button>
+      <button type="button" data-quick="all">All</button>
       <button type="button" data-quick="none">None</button>
     </div>
     <div class="sizes" id="sizes"></div>
@@ -110,6 +274,7 @@
   </form>
 </dialog>
 
+<noscript><p style="padding:24px">Screenshot Studio is a free App Store and Google Play screenshot maker. It needs JavaScript to run.</p></noscript>
 <script src="app.js"></script>
 </body>
 </html>
