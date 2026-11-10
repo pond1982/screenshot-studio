@@ -680,25 +680,23 @@ function render(ctx, W, H, i, family, tplOverride) {
 }
 
 /* ---------- fonts on demand ---------- */
-const fontLinks = new Set();
+const fontLinks = new Map();
+function loadFont(f, weights, text) {
+  if (!f?.g) return Promise.resolve();
+  if (!fontLinks.has(f.g)) {
+    const l = document.createElement('link');
+    l.rel = 'stylesheet'; l.href = `https://fonts.googleapis.com/css2?family=${f.g.replace(/ /g, '+')}:wght@${f.w.join(';')}&display=swap`;
+    document.head.append(l);
+    fontLinks.set(f.g, new Promise(r => { l.onload = l.onerror = r; }));
+  }
+  return fontLinks.get(f.g).then(() => Promise.all([...new Set(weights.map(w => fontWeight(f, w)))].map(w => document.fonts.load(`${w} 40px "${f.g}"`, text).catch(() => { }))));
+}
+const allText = () => state.slides.map(s => [s.headline, s.subtitle, s.eyebrow, s.badge].join(' ')).join(' ') + ' Ag';
 async function ensureFonts() {
-  const st = state.style;
-  const all = state.slides.map(s => [s.headline, s.subtitle, s.eyebrow, s.badge].join(' ')).join(' ') + ' Ag';
+  const st = state.style, all = allText();
   const need = new Set([FONTS[st.font], FONTS[st.subFont] || FONTS[st.font]]);
   if (THAI.test(all)) need.add(FONTS.notosansthai);
-  const jobs = [];
-  for (const f of need) {
-    if (!f?.g) continue;
-    if (!fontLinks.has(f.g)) {
-      fontLinks.add(f.g);
-      const l = document.createElement('link');
-      l.rel = 'stylesheet'; l.href = `https://fonts.googleapis.com/css2?family=${f.g.replace(/ /g, '+')}:wght@${f.w.join(';')}&display=swap`;
-      document.head.append(l);
-      await new Promise(r => { l.onload = l.onerror = r; });
-    }
-    for (const w of new Set([st.weight, 400, 500, 600, 800].map(w => fontWeight(f, w)))) jobs.push(document.fonts.load(`${w} 40px "${f.g}"`, all).catch(() => { }));
-  }
-  await Promise.all(jobs);
+  await Promise.all([...need].map(f => loadFont(f, [st.weight, 400, 500, 600, 800], all)));
 }
 let fontT;
 const fontsSoon = () => { clearTimeout(fontT); fontT = setTimeout(() => ensureFonts().then(schedule), 120); };
@@ -753,6 +751,106 @@ async function restore() {
   if (bg) state.bgImage = await loadImage(bg).catch(() => null);
 }
 
+/* ---------- starter ideas, randomize, undo ---------- */
+const DEFAULT_HEAD = 'Your *headline* here';
+const RESET = { rotate: false, rotateStep: 40, align: 'auto', badgeStyle: 'laurel', devScale: 1, headScale: 1, subScale: 1, glare: false, textColor: '#ffffff' };
+// each slide: t = template, h = headline, s = subtitle, e = label, b = badge
+const STARTERS = [
+  { name: 'Classic launch', theme: 'Indigo', slides: [
+    { t: 'top', h: 'Plan your *whole week* in seconds', s: 'Tasks, habits and calendar in one place', b: '4.9 ★ | 120K ratings' },
+    { t: 'top', h: 'Everything in *one place*' }, { t: 'top', h: 'Reminders that *actually* help' }, { t: 'top', h: 'Syncs across *all your devices*' }] },
+  { name: 'Award hero', theme: 'Midnight', st: { badgeStyle: 'laurel' }, slides: [
+    { t: 'hero', h: 'Sleep better. *Stress less.*', s: 'The calm you need, every day', b: 'App of the Day | App Store' },
+    { t: 'float', h: 'Wind down in *minutes*' }, { t: 'float', h: 'Sessions for *every mood*' }, { t: 'float', h: 'Track your *progress*' }] },
+  { name: 'Panorama story', theme: 'Sunset', pano: true, slides: [
+    { t: 'pano', h: 'Go *anywhere*', s: 'Book a ride in two taps' }, { t: 'pano', h: 'See your driver *live*' },
+    { t: 'tilt', h: 'Pay your *way*' }, { t: 'top', h: 'Rated *4.9* by riders', b: '4.9 ★ | 2M ratings' }] },
+  { name: 'Caption blocks', theme: 'Candy', st: { bgType: 'solid', c1: '#58cc02', deco: 'none', rotate: true, rotateStep: 60, font: 'nunito', weight: 900, accent: '#ffffff', hl: 'underline' }, slides: [
+    { t: 'block', h: 'learn a language *for free*' }, { t: 'block', h: 'fun lessons, *5 minutes* a day' },
+    { t: 'block', h: 'keep your *streak* alive' }, { t: 'block', h: 'compete with *friends*' }] },
+  { name: 'Frameless cards', theme: 'Clean', st: { align: 'left', font: 'inter', weight: 800, accent: '#16a34a' }, slides: [
+    { t: 'card', h: 'Send money *instantly*', s: 'Free, fast and secure' }, { t: 'card', h: 'Get paid *2 days early*' },
+    { t: 'card', h: 'Save on *every purchase*' }, { t: 'card', h: 'Invest from *$1*' }] },
+  { name: 'Bold caps', theme: 'Punch', slides: [
+    { t: 'peek', h: 'FIND *MUSIC* YOU LOVE' }, { t: 'closeup', h: 'MADE *FOR YOU*' },
+    { t: 'closeup', h: 'LISTEN *OFFLINE*' }, { t: 'peek', h: 'SHARE *EVERYTHING*' }] },
+  { name: 'ไทยโมเดิร์น', theme: 'Thai Modern', slides: [
+    { t: 'tilt', h: 'สั่งง่าย *ส่งไว*', s: 'อาหารร้านโปรดส่งถึงมือคุณ', b: '700,000 ร้าน | ทั่วประเทศ' },
+    { t: 'top', h: 'โปรเด็ด*ทุกวัน*', s: 'ส่วนลดสูงสุด 50%' }, { t: 'top', h: 'ติดตามออเดอร์*แบบเรียลไทม์*' }, { t: 'top', h: 'จ่ายสะดวก *ทุกช่องทาง*' }] },
+  { name: 'Editorial', theme: 'Editorial', st: { subFont: 'inter' }, slides: [
+    { t: 'float', h: 'Read *smarter*, not longer', s: 'The best stories, picked for you', e: "EDITORS' CHOICE" },
+    { t: 'left', h: 'Save it *for later*' }, { t: 'float', h: 'Listen on the *go*' }, { t: 'left', h: 'Yours, *ad-free*' }] },
+  { name: 'Neon tech', theme: 'Neon', st: { align: 'left' }, slides: [
+    { t: 'iso', h: 'Ship *faster* with AI', s: 'Your whole workflow in one app', e: 'NEW · 2.0' },
+    { t: 'left', h: 'Ask *anything*' }, { t: 'left', h: 'Automate the *boring parts*' }, { t: 'pair', h: 'Works with *your tools*' }] },
+  { name: 'Soft trio', theme: 'Pastel', slides: [
+    { t: 'fan', h: 'All your photos, *beautifully* organised', b: '4.8 ★ | Loved by 5M' },
+    { t: 'top', h: 'Edit in *one tap*' }, { t: 'pair', h: 'Albums that *build themselves*' }, { t: 'top', h: 'Share with *family*' }] },
+  { name: 'Game, landscape', theme: 'Aurora', land: true, st: { font: 'bebasneue', upper: true, textShadow: true }, slides: [
+    { t: 'full', h: 'BUILD YOUR *KINGDOM*' }, { t: 'full', h: 'BATTLE *REAL PLAYERS*' }, { t: 'full', h: 'COLLECT *100+ HEROES*' }, { t: 'full', h: 'JOIN A *CLAN*' }] },
+  { name: 'Ocean stage', theme: 'Ocean', slides: [
+    { t: 'bottom', h: 'Your money, *under control*', s: 'Budgets that update themselves' },
+    { t: 'bottom', h: 'See where it *goes*' }, { t: 'bottom', h: 'Hit your *goals* sooner' }, { t: 'bottom', h: 'Bank-level *security*' }] },
+];
+const hasImages = s => Object.values(s.images).some(Boolean);
+const untouched = s => s.auto || (!s.subtitle && !s.eyebrow && !s.badge && (!s.headline || s.headline === DEFAULT_HEAD));
+
+/** Applies a starter in place. Screenshots stay, and so does any text the user has typed. */
+function applyStarter(sp) {
+  const have = state.slides, fresh = !have.some(hasImages), n = fresh ? sp.slides.length : have.length;
+  state.slides = Array.from({ length: n }, (_, i) => {
+    const d = sp.slides[i % sp.slides.length], base = have[i] || newSlide('');
+    const out = { ...base, template: d.t === 'hero' && !fresh ? sp.slides[1].t : d.t };
+    if (!have[i] || untouched(base)) Object.assign(out, i < sp.slides.length ? { headline: d.h, subtitle: d.s || '', eyebrow: d.e || '', badge: d.b || '' } : { headline: '', subtitle: '', eyebrow: '', badge: '' }, { auto: true });
+    return out;
+  });
+  Object.assign(state.style, RESET, THEMES.find(t => t.name === sp.theme).p, sp.st);
+  Object.assign(state, { pano: !!sp.pano, landscape: !!sp.land, linkTpl: new Set(state.slides.map(s => s.template)).size === 1, sel: Math.min(state.sel, n - 1) });
+}
+
+let undoSnap = null;
+const takeSnap = () => ({ style: { ...state.style }, pano: state.pano, landscape: state.landscape, linkTpl: state.linkTpl, sel: state.sel, slides: state.slides.map(s => ({ ...s })) });
+function putSnap(k) { Object.assign(state.style, k.style); Object.assign(state, { pano: k.pano, landscape: k.landscape, linkTpl: k.linkTpl, sel: k.sel, slides: k.slides }); }
+const remember = () => { undoSnap = takeSnap(); $('#undo').disabled = false; };
+
+/** Draws the first two slides of a starter without touching the project. */
+let scratch;
+function previewStarter(cv, sp) {
+  const keep = takeSnap(), u = uid;
+  try {
+    applyStarter(sp);
+    const [fw, fh] = dims(FAMILY[state.family]), k = (state.landscape ? 110 : 210) / fh, W = Math.round(fw * k), H = Math.round(fh * k), g = state.pano ? 0 : 4;
+    const n = state.landscape ? 1 : 2;
+    scratch ||= document.createElement('canvas'); scratch.width = W; scratch.height = H;
+    cv.width = n * W + (n - 1) * g; cv.height = H;
+    const x = cv.getContext('2d');
+    for (let i = 0; i < Math.min(n, state.slides.length); i++) { render(scratch.getContext('2d'), W, H, i, state.family); x.drawImage(scratch, i * (W + g), 0); }
+  } finally { putSnap(keep); uid = u; }
+}
+
+function randomize() {
+  const st = state.style, pick = a => a[Math.random() * a.length | 0], chance = p => Math.random() < p;
+  const thai = THAI.test(allText());
+  Object.assign(st, RESET, pick(THEMES).p);
+  const fonts = Object.keys(FONTS).filter(k => FONTS[k].g && (!thai || FONTS[k].thai) && !['caveat', 'pacifico', 'charm', 'sriracha', 'itim', 'chonburi', 'mali'].includes(k));
+  st.font = pick(fonts); st.weight = pick([600, 700, 800, 800, 900]); st.upper = !thai && chance(0.2);
+  if (chance(0.6)) {
+    const [a, b] = pick(PRESETS);
+    Object.assign(st, { c1: a, c2: b, c3: hueShift(b, 70), bgType: pick(['linear', 'linear', 'mesh', 'radial', 'solid']) });
+    st.accent = bgIsLight(st) ? pick(['#2563eb', '#e11d48', '#7c3aed', '#c2410c', '#047857']) : pick(['#ffd60a', '#a3e635', '#fde68a', '#67e8f9', '#f9a8d4']);
+  }
+  st.deco = pick(Object.keys(CHIPS.deco)); st.grain = chance(0.2); st.angle = 100 + (Math.random() * 16 | 0) * 10;
+  st.hl = pick(['color', 'color', 'marker', 'underline']); st.align = pick(['auto', 'auto', 'left', 'center']);
+  st.frame = pick(Object.keys(FRAMES)); st.shadow = st.frame === 'none' ? 'soft' : pick(['soft', 'soft', 'soft', 'hard', 'none']);
+  st.badgeStyle = pick(Object.keys(CHIPS.badgeStyle)); st.glare = chance(0.2);
+  st.rotate = chance(0.25); st.rotateStep = pick([25, 40, 60, 90]);
+  state.pano = !st.rotate && state.slides.length > 1 && chance(0.3);
+  const tpls = Object.keys(TEMPLATES).filter(t => t !== 'hero' && t !== 'pano'), one = pick(tpls), mixed = chance(0.4);
+  state.slides.forEach((s, i) => s.template = state.pano && chance(0.6) ? 'pano' : mixed ? pick(tpls) : one);
+  if (!hasImages(state.slides[0]) && state.slides.length > 1 && chance(0.25)) state.slides[0].template = 'hero';
+  state.linkTpl = new Set(state.slides.map(s => s.template)).size === 1;
+}
+
 /* ---------- UI ---------- */
 const cur = () => state.slides[state.sel];
 let raf = 0;
@@ -770,6 +868,7 @@ function paint() {
   paintInto($('#preview'), state.sel, Math.min(Math.max(fw, fh), innerWidth < 820 ? 1200 : 1600));
   $$('#film .thumb canvas').forEach((cv, i) => paintInto(cv, i, 300));
   if ($('#tpls').offsetParent) $$('#tpls canvas').forEach(cv => paintInto(cv, state.sel, 240, cv.dataset.tpl));
+  if ($('#starters').offsetParent) $$('#starters canvas').forEach((cv, i) => previewStarter(cv, STARTERS[i]));
   saveSoon();
 }
 
@@ -826,6 +925,13 @@ function buildStatic() {
       sync();
     };
     $('#tpls').append(b);
+  }
+  for (const sp of STARTERS) {
+    const b = document.createElement('button');
+    b.type = 'button'; b.className = 'starter'; b.innerHTML = '<canvas></canvas>';
+    b.append(sp.name);
+    b.onclick = () => { remember(); applyStarter(sp); sync(true); toast(`Applied “${sp.name}”. Your screenshots and your own text are kept.`); };
+    $('#starters').append(b);
   }
   let group = '';
   for (const s of SIZES) {
@@ -1044,9 +1150,15 @@ function syncExport() {
 }
 
 /* ---------- wiring ---------- */
+function showTab(name) {
+  $$('.tabs button').forEach(x => x.classList.toggle('on', x.dataset.tab === name));
+  $$('.tab').forEach(t => t.hidden = t.dataset.tab !== name);
+  $('.panel-body').scrollTop = 0; schedule();
+}
+
 function wire() {
   const st = state.style;
-  for (const el of $$('[data-s]')) el.oninput = () => { cur()[el.dataset.s] = el.value; fontsSoon(); schedule(); };
+  for (const el of $$('[data-s]')) el.oninput = () => { cur()[el.dataset.s] = el.value; delete cur().auto; fontsSoon(); schedule(); };
   for (const el of $$('[data-k]')) {
     if (el.matches('.chips')) continue;
     const k = el.dataset.k;
@@ -1064,11 +1176,9 @@ function wire() {
     Object.assign(st, th.p, { deco: decos[Math.random() * decos.length | 0], angle: 100 + (Math.random() * 16 | 0) * 10 });
     sync();
   };
-  $$('.tabs button').forEach(b => b.onclick = () => {
-    $$('.tabs button').forEach(x => x.classList.toggle('on', x === b));
-    $$('.tab').forEach(t => t.hidden = t.dataset.tab !== b.dataset.tab);
-    $('.panel-body').scrollTop = 0; schedule();
-  });
+  $$('.tabs button').forEach(b => b.onclick = () => showTab(b.dataset.tab));
+  for (const id of ['#random', '#random2']) $(id).onclick = () => { remember(); randomize(); sync(true); };
+  $('#undo').onclick = () => { if (!undoSnap) return; const now = takeSnap(); putSnap(undoSnap); undoSnap = now; sync(true); };
 
   const file = $('#file'); let pickFor = null;
   $$('#slots .slot').forEach(el => {
@@ -1136,5 +1246,7 @@ function wire() {
 buildStatic(); wire();
 state.slides.push(newSlide());
 sync(true);
-restore().then(() => sync(true));
-window.studio = { state, addFiles, buildExport, encodePNG, render, SIZES, FONTS, THEMES, sync, ensureFonts }; // handy for debugging
+restore().then(() => { if (state.slides.some(hasImages)) showTab('content'); sync(true); });
+// fonts for the starter thumbnails
+Promise.all(STARTERS.map(sp => { const p = { ...THEMES.find(t => t.name === sp.theme).p, ...sp.st }; return loadFont(FONTS[p.font], [p.weight, 500], sp.slides.map(d => d.h + (d.s || '') + (d.b || '')).join(' ')); })).then(schedule);
+window.studio = { state, STARTERS, applyStarter, randomize, renderFile, dims, FAMILY, hasImages, addFiles, buildExport, encodePNG, render, SIZES, FONTS, THEMES, sync, ensureFonts }; // handy for debugging

@@ -80,6 +80,7 @@
     <div class="devbar">
       <div class="seg" id="familyTabs" role="tablist" aria-label="Preview device"></div>
       <button id="orient" title="Switch between portrait and landscape">Portrait</button>
+      <button id="random2" title="Randomize the whole design" aria-label="Randomize the whole design">🎲</button>
     </div>
     <div class="canvasWrap"><canvas id="preview" aria-label="Screenshot preview"></canvas></div>
     <div class="film" id="film"></div>
@@ -87,7 +88,8 @@
 
   <aside class="panel">
     <nav class="tabs" aria-label="Editor sections">
-      <button data-tab="content" class="on">Content</button>
+      <button data-tab="ideas" class="on">Ideas</button>
+      <button data-tab="content">Content</button>
       <button data-tab="layout">Layout</button>
       <button data-tab="style">Style</button>
       <button data-tab="text">Text</button>
@@ -96,7 +98,20 @@
     </nav>
     <div class="panel-body">
 
-    <div class="tab" data-tab="content">
+    <div class="tab" data-tab="ideas">
+      <section>
+        <h2>Start from an idea</h2>
+        <p class="hint">Pick a starting point, then make it yours. Your screenshots stay, and so does any text you have typed.</p>
+        <div class="row">
+          <button type="button" class="primary" id="random">🎲 Randomize everything</button>
+          <button type="button" id="undo" disabled>Undo</button>
+        </div>
+        <div class="starters" id="starters"></div>
+        <p class="hint">Keep tapping Randomize to mix themes, fonts, layouts, colours and frames until something clicks.</p>
+      </section>
+    </div>
+
+    <div class="tab" data-tab="content" hidden>
       <section>
         <h2>Slide <span id="slideNo"></span></h2>
         <label class="fld">Headline
@@ -217,6 +232,7 @@
         <p>Screenshot Studio is a free app screenshot generator. Drop in your screenshots, write a headline, pick a template and export store-ready images for <strong>iPhone, iPad and Android</strong> in the exact sizes App Store Connect and Google Play Console accept.</p>
         <ul>
           <li>Device mockups for iPhone, iPad, Android phones and tablets</li>
+          <li>12 ready-made starter designs and a Randomize button for instant ideas</li>
           <li>15 layouts: tilted, isometric, panorama, close-up, text only and more</li>
           <li>45+ fonts, with Thai fonts such as Kanit, Prompt, Sarabun and Mitr</li>
           <li>Gradient, mesh, photo and patterned backgrounds, plus one-tap themes</li>

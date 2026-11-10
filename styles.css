@@ -72,6 +72,11 @@ input[type=color] { width: 30px; height: 30px; padding: 0; border: 1px solid var
 .theme i { width: 100%; aspect-ratio: 1.25; border-radius: 9px; display: grid; place-items: center; font: 800 20px/1 system-ui, sans-serif; font-style: normal; border: 1px solid var(--line); }
 .theme i b { font-weight: 800; }
 .theme:hover { background: none; color: var(--ink); }
+.starters { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin: 12px 0; }
+.starter { padding: 6px; border-radius: 12px; display: flex; flex-direction: column; align-items: center; gap: 6px; font-size: 12px; color: var(--ink); background: var(--field); }
+.starter canvas { width: 100%; border-radius: 7px; display: block; }
+.starter:hover { border-color: var(--accent); background: var(--field); }
+#random2 { flex: none; padding: 6px 9px; }
 .swatches { display: grid; grid-template-columns: repeat(6, 1fr); gap: 8px; }
 .swatches button { height: 32px; padding: 0; border-radius: 8px; }
 .chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }

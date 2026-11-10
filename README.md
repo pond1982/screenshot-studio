@@ -4,6 +4,8 @@ Free App Store and Google Play screenshot maker. Drop in app screenshots, write 
 template and export store-ready images for iPhone, iPhone Duo, iPad, Android phones and Android tablets,
 in portrait or landscape.
 
+- 12 starter designs to pick from and a Randomize button that mixes theme, font, layout, colours and
+  frame, with one-step undo
 - 15 templates: classic, caption block, tilted, isometric, pair, trio, panorama across two slides,
   close-up, full bleed, text only and more
 - 47 fonts loaded on demand from Google Fonts, 18 of them with Thai; Thai text wraps at word boundaries
