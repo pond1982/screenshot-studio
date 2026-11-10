@@ -2,10 +2,10 @@
    Loaded on demand (with three.js from a CDN) the first time the About tab opens.
 
    The character is a rigged GLB when one is configured, otherwise the built-in cartoon.
-   - MODEL_DEFAULT: path of a model that may be published with the site (empty = cartoon).
+   - MODEL_DEFAULT: path of the model published with the site (empty = cartoon only).
    - ?model=models/local-test.glb in the URL tries another same-site file, for local testing.
    A GLB that carries animation clips plays them; one with only a skeleton is danced by code. */
-const MODEL_DEFAULT = '';
+const MODEL_DEFAULT = 'models/pondd.glb';
 const asked = new URLSearchParams(location.search).get('model') || '';
 const MODEL = /^[\w\-.]+(\/[\w\-.]+)*\.glb$/.test(asked) && !asked.includes('..') ? asked : MODEL_DEFAULT;
 const LINES = ['Hi! Thanks for using Screenshot Studio 👋', 'Tap me to change the dance!', 'ขอบคุณที่แวะมาครับ 🙏', 'Nice screenshots you got there 😎', 'Like it? Try my apps on the App Store ♥', 'One more spin!'];
@@ -96,14 +96,22 @@ async function build(host) {
 async function loadModel(T, url, renderer, scene) {
   const [{ GLTFLoader }, { RoomEnvironment }] = await Promise.all([import('three/addons/loaders/GLTFLoader.js'), import('three/addons/environments/RoomEnvironment.js')]);
   const gltf = await new GLTFLoader().loadAsync(url);
-  const model = gltf.scene, object = new T.Group(), sway = new T.Group();
-  object.add(sway); sway.add(model);
+  const model = gltf.scene, object = new T.Group(), sway = new T.Group(), face = new T.Group();
+  object.add(sway); sway.add(face); face.add(model);
   model.traverse(o => { if (o.isMesh) o.frustumCulled = false; });
+  const measure = () => {                                  // bones must be evaluated before a skinned mesh can be measured
+    object.updateMatrixWorld(true);                        // also refreshes each skinned mesh's bind inverse
+    model.traverse(o => { if (o.isSkinnedMesh) { o.skeleton.update(); o.computeBoundingBox(); } });
+    return new T.Box3().setFromObject(model);
+  };
+  measure();
+  // turn it to face the camera: the toes point forward
+  const named = re => { let hit = null; model.traverse(o => { if (!hit && o.isBone && re.test(o.name)) hit = o; }); return hit; };
+  const foot = named(/foot/i), toe = named(/toe|ball/i);
+  if (foot && toe) { const d = toe.getWorldPosition(new T.Vector3()).sub(foot.getWorldPosition(new T.Vector3())); if (Math.hypot(d.x, d.z) > 1e-4) face.rotation.y = -Math.atan2(d.x, d.z); }
   // stand it on the floor, centred, at the same height as the cartoon
-  model.updateMatrixWorld(true);                           // also refreshes each skinned mesh's bind inverse
-  model.traverse(o => { if (o.isSkinnedMesh) { o.skeleton.update(); o.computeBoundingBox(); } });   // bones must be evaluated before measuring
-  const box = new T.Box3().setFromObject(model), dim = box.getSize(new T.Vector3()), mid = box.getCenter(new T.Vector3()), k = 3.4 / dim.y;
-  model.scale.multiplyScalar(k); model.position.set(-mid.x * k, -box.min.y * k, -mid.z * k);
+  const box = measure(), dim = box.getSize(new T.Vector3()), mid = box.getCenter(new T.Vector3()), k = 3.4 / dim.y;
+  model.scale.multiplyScalar(k); face.position.set(-mid.x * k, -box.min.y * k, -mid.z * k);
   renderer.toneMapping = T.ACESFilmicToneMapping; renderer.toneMappingExposure = 1.1;
   scene.environment = new T.PMREMGenerator(renderer).fromScene(new RoomEnvironment(), 0.04).texture;
 
@@ -122,10 +130,10 @@ async function loadModel(T, url, renderer, scene) {
   const find = re => bones.filter(b => re.test(clean(b.name))).sort((a, b) => depth(a) - depth(b));
   const wpos = b => b.getWorldPosition(new T.Vector3());
   const pair = re => { const [a, b] = find(re); return a && b ? (wpos(a).x > wpos(b).x ? [a, b] : [b, a]) : []; };   // [+x side, -x side]
-  const [armL, armR] = pair(/^(upperarm_[lr]|(left|right)(upper)?arm|upper_?arm[._][lr]|[lr]_upper_?arm)$/);
-  const [foreL, foreR] = pair(/^(lowerarm_[lr]|(left|right)(forearm|lowerarm)|fore_?arm[._][lr]|[lr]_fore_?arm)$/);
-  const [legL, legR] = pair(/^(thigh_[lr]|(left|right)(upleg|upperleg)|thigh[._][lr]|[lr]_thigh)$/);
-  const [calfL, calfR] = pair(/^(calf_[lr]|(left|right)(leg|lowerleg)|(shin|calf)[._][lr]|[lr]_(calf|shin))$/);
+  const [armL, armR] = pair(/^(upperarm_[lr]|(left|right)(upper)?arm|upper_?arm[._]?[lr]|[lr]_upper_?arm)$/);
+  const [foreL, foreR] = pair(/^(lowerarm_[lr]|(left|right)(forearm|lowerarm)|fore_?arm[._]?[lr]|[lr]_fore_?arm)$/);
+  const [legL, legR] = pair(/^(thigh_[lr]|(left|right)(upleg|upperleg)|thigh[._]?[lr]|[lr]_thigh)$/);
+  const [calfL, calfR] = pair(/^(calf_[lr]|(left|right)(leg|lowerleg)|(shin|calf)[._]?[lr]|[lr]_(calf|shin))$/);
   const hips = find(/^(pelvis|hips?)$/)[0], torso = find(/^spine(_?0?1)?$/)[0] || find(/spine|chest/)[0], head = find(/^head$/)[0];
   if (!armL || !foreL || !hips || !torso) throw new Error('skeleton not recognised');
 
