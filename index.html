@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Screenshot Studio — free App Store screenshot maker</title>
+<meta name="description" content="Drop in app screenshots, add a headline, pick a template and export App Store-ready images for every iPhone, iPhone Duo and iPad size. Free, runs entirely in your browser.">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<header class="bar">
+  <div class="brand"><span class="logo" aria-hidden="true"></span>Screenshot Studio</div>
+  <div class="seg" id="familyTabs" role="tablist" aria-label="Preview device">
+    <button data-family="iphone" class="on">iPhone</button>
+    <button data-family="duo">iPhone Duo</button>
+    <button data-family="ipad">iPad</button>
+  </div>
+  <button class="primary" id="openExport">Export…</button>
+</header>
+
+<main>
+  <aside class="panel">
+    <section>
+      <h2>Slide <span id="slideNo"></span></h2>
+      <label class="fld">Headline
+        <textarea id="headline" rows="2" placeholder="What does this screen do for people?"></textarea>
+      </label>
+      <label class="fld">Subtitle
+        <textarea id="subtitle" rows="2" placeholder="Optional supporting line"></textarea>
+      </label>
+      <div class="fld">Screenshots for this slide
+        <div class="slots" id="slots">
+          <div class="slot" data-family="iphone"><button class="pick"><span>iPhone</span></button><button class="clear" title="Remove">×</button></div>
+          <div class="slot" data-family="duo"><button class="pick"><span>Duo</span></button><button class="clear" title="Remove">×</button></div>
+          <div class="slot" data-family="ipad"><button class="pick"><span>iPad</span></button><button class="clear" title="Remove">×</button></div>
+        </div>
+        <p class="hint">Or drop images anywhere — they are sorted into iPhone, Duo and iPad by their pixel size.</p>
+      </div>
+    </section>
+
+    <section>
+      <h2>Template</h2>
+      <div class="tpls" id="tpls"></div>
+      <label class="check"><input type="checkbox" id="linkTpl" checked> Use the same template on every slide</label>
+    </section>
+
+    <section>
+      <h2>Background</h2>
+      <div class="swatches" id="swatches"></div>
+      <div class="row">
+        <label class="color"><input type="color" id="c1"> From</label>
+        <label class="color"><input type="color" id="c2"> To</label>
+        <label class="grow">Angle <input type="range" id="angle" min="0" max="360" step="5"></label>
+      </div>
+      <div class="fld">Decoration
+        <div class="chips" id="decos"></div>
+      </div>
+    </section>
+
+    <section>
+      <h2>Text</h2>
+      <div class="fld">Font
+        <div class="chips" id="fonts"></div>
+      </div>
+      <div class="row">
+        <label class="check"><input type="checkbox" id="autoText" checked> Auto colour</label>
+        <label class="color"><input type="color" id="textColor"> Custom</label>
+      </div>
+      <label class="fld">Size <input type="range" id="headScale" min="0.7" max="1.4" step="0.02"></label>
+    </section>
+
+    <section>
+      <h2>Device frame</h2>
+      <div class="chips" id="frames"></div>
+    </section>
+
+    <p class="foot">Free. Everything is rendered in your browser — your screenshots are never uploaded.</p>
+  </aside>
+
+  <section class="stage">
+    <div class="canvasWrap"><canvas id="preview"></canvas></div>
+    <div class="film" id="film"></div>
+  </section>
+</main>
+
+<div class="dropveil" id="dropveil"><div>Drop screenshots to add them</div></div>
+<div class="toast" id="toast" role="status"></div>
+<input type="file" id="file" accept="image/*" multiple hidden>
+
+<dialog id="exportDlg">
+  <form method="dialog">
+    <h2>Export for App Store Connect</h2>
+    <p class="hint">Portrait sizes from Apple's screenshot specifications. App Store Connect scales down from the largest size in each group, so the pre-ticked ones are enough for most apps.</p>
+    <div class="row quick">
+      <button type="button" data-quick="required">Recommended</button>
+      <button type="button" data-quick="all">All sizes</button>
+      <button type="button" data-quick="none">None</button>
+    </div>
+    <div class="sizes" id="sizes"></div>
+    <div class="row">
+      <label class="check"><input type="radio" name="fmt" value="png" checked> PNG (no alpha channel)</label>
+      <label class="check"><input type="radio" name="fmt" value="jpg"> JPEG (smaller)</label>
+    </div>
+    <p class="warn" id="exportWarn"></p>
+    <div class="row end">
+      <span class="hint" id="exportCount"></span>
+      <button value="cancel">Close</button>
+      <button type="button" class="primary" id="doExport">Download ZIP</button>
+    </div>
+  </form>
+</dialog>
+
+<script src="app.js"></script>
+</body>
+</html>
