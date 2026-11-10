@@ -26,6 +26,9 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="styles.css">
+<script type="importmap">
+{ "imports": { "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js", "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/" } }
+</script>
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
@@ -227,6 +230,7 @@
     </div>
 
     <div class="tab about" data-tab="about" hidden>
+      <div class="stage3d" id="stage3d" role="img" aria-label="A dancing 3D character of the author. Tap to change the dance."><div class="bubble"></div></div>
       <section>
         <h2>Free App Store &amp; Google Play screenshot maker</h2>
         <p>Screenshot Studio is a free app screenshot generator. Drop in your screenshots, write a headline, pick a template and export store-ready images for <strong>iPhone, iPad and Android</strong> in the exact sizes App Store Connect and Google Play Console accept.</p>

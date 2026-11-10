@@ -736,15 +736,16 @@ async function restore() {
   if (!FONTS[state.style.font]) state.style.font = 'system';
   Object.assign(state, { family: FAMILY[m.family] ? m.family : 'iphone', linkTpl: !!m.linkTpl, landscape: !!m.landscape, pano: !!m.pano });
   if (m.sizes) SIZES.forEach(s => s.on = m.sizes.includes(s.id));
-  state.slides = [];
+  const slides = [];   // built aside so a repaint during the awaits never sees a half-restored project
   for (const s of m.slides.slice(0, MAX_SLIDES)) {
     const sl = { ...newSlide(), ...s, images: blankImages() };
     for (const fam of Object.keys(FAMILY)) {
       const blob = await db.get(`img:${s.id}:${fam}`);
       if (blob) sl.images[fam] = await loadImage(blob).catch(() => null);
     }
-    state.slides.push(sl);
+    slides.push(sl);
   }
+  state.slides = slides;
   uid = Math.max(...state.slides.map(s => s.id));
   state.sel = Math.min(m.sel || 0, state.slides.length - 1);
   const bg = await db.get('bg');
@@ -1154,6 +1155,7 @@ function showTab(name) {
   $$('.tabs button').forEach(x => x.classList.toggle('on', x.dataset.tab === name));
   $$('.tab').forEach(t => t.hidden = t.dataset.tab !== name);
   $('.panel-body').scrollTop = 0; schedule();
+  if (name === 'about') import('./about3d.js').then(m => m.show($('#stage3d'))).catch(() => { $('#stage3d').hidden = true; }); // Easter egg
 }
 
 function wire() {
