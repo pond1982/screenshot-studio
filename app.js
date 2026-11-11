@@ -4,6 +4,9 @@
 const $ = (s, r = document) => r.querySelector(s);
 const $$ = (s, r = document) => [...r.querySelectorAll(s)];
 const DEG = Math.PI / 180;
+/** Anonymous usage event for Google Analytics. Never sends headlines, images or other content. No-op when analytics is off. */
+const track = (name, params = {}) => { try { window.gtag?.('event', name, params); } catch { } };
+window.track = track;
 const THAI = /[฀-๿]/;
 
 /* ---------- store sizes (portrait; landscape swaps width and height) ---------- */
@@ -878,7 +881,7 @@ function buildStatic() {
   for (const [fam, F] of Object.entries(FAMILY)) {
     const b = document.createElement('button');
     b.type = 'button'; b.dataset.family = fam; b.textContent = F.name;
-    b.onclick = () => { state.family = fam; sync(); };
+    b.onclick = () => { state.family = fam; track('change_device', { device: fam }); sync(); };
     $('#familyTabs').append(b);
     const slot = document.createElement('div');
     slot.className = 'slot'; slot.dataset.family = fam;
@@ -890,7 +893,7 @@ function buildStatic() {
     for (const [val, label] of Object.entries(CHIPS[k])) {
       const b = document.createElement('button');
       b.type = 'button'; b.textContent = label; b.dataset.val = val;
-      b.onclick = () => { st[k] = /^\d+$/.test(val) ? +val : val; sync(); };
+      b.onclick = () => { st[k] = /^\d+$/.test(val) ? +val : val; track('set_option', { option: k, value: String(val) }); sync(); };
       el.append(b);
     }
   }
@@ -914,7 +917,7 @@ function buildStatic() {
     const bg = p.bgType === 'solid' ? p.c1 : p.bgType === 'mesh' ? `radial-gradient(at 0 0, ${p.c2}, transparent 70%), radial-gradient(at 100% 100%, ${p.c3}, transparent 70%), ${p.c1}` : `linear-gradient(160deg, ${p.c1}, ${p.c2})`;
     const light = lum(p.c1) > 0.6;
     btn.innerHTML = `<i style="background:${bg};color:${light ? '#0b0c10' : '#fff'}">A<b style="color:${p.accent === '#111111' ? '#111' : p.accent}">a</b></i>${th.name}`;
-    btn.onclick = () => { Object.assign(st, p); sync(); };
+    btn.onclick = () => { Object.assign(st, p); track('select_theme', { theme: th.name }); sync(); };
     $('#themes').append(btn);
   }
   for (const id of Object.keys(TEMPLATES)) {
@@ -923,6 +926,7 @@ function buildStatic() {
     b.innerHTML = `<canvas data-tpl="${id}"></canvas>${TPL_NAMES[id]}`;
     b.onclick = () => {
       if (state.linkTpl) state.slides.forEach(s => s.template = id); else cur().template = id;
+      track('select_template', { template: id });
       sync();
     };
     $('#tpls').append(b);
@@ -931,7 +935,7 @@ function buildStatic() {
     const b = document.createElement('button');
     b.type = 'button'; b.className = 'starter'; b.innerHTML = '<canvas></canvas>';
     b.append(sp.name);
-    b.onclick = () => { remember(); applyStarter(sp); sync(true); toast(`Applied “${sp.name}”. Your screenshots and your own text are kept.`); };
+    b.onclick = () => { remember(); applyStarter(sp); track('apply_starter', { starter: sp.name }); sync(true); toast(`Applied “${sp.name}”. Your screenshots and your own text are kept.`); };
     $('#starters').append(b);
   }
   let group = '';
@@ -969,7 +973,7 @@ function buildFilm() {
   if (state.slides.length < MAX_SLIDES) {
     const add = document.createElement('button');
     add.type = 'button'; add.className = 'add'; add.textContent = '+'; add.title = 'Add slide';
-    add.onclick = () => { state.slides.push(newSlide('')); state.sel = state.slides.length - 1; sync(true); };
+    add.onclick = () => { state.slides.push(newSlide('')); state.sel = state.slides.length - 1; track('add_slide', { slides: state.slides.length }); sync(true); };
     film.append(add);
   }
 }
@@ -1039,6 +1043,7 @@ async function addFiles(files, forcedFamily, forcedSlide) {
     if (!forcedFamily && !first.images[state.family]) state.family = Object.keys(FAMILY).find(f => first.images[f]);
     if (!forcedFamily && list.length === 1 && first.images[state.family]) { const im = first.images[state.family]; if (im.w > im.h !== state.landscape && state.slides.every(s => s === first || !Object.values(s.images).some(Boolean))) state.landscape = im.w > im.h; }
   }
+  if (first) track('add_screenshots', { count: list.length - skipped, device: state.family, method: forcedFamily ? 'slot' : 'auto' });
   if (skipped) toast(`${skipped} file${skipped > 1 ? 's' : ''} skipped — a set holds at most ${MAX_SLIDES} screenshots.`);
   sync(true);
 }
@@ -1155,6 +1160,7 @@ function showTab(name) {
   $$('.tabs button').forEach(x => x.classList.toggle('on', x.dataset.tab === name));
   $$('.tab').forEach(t => t.hidden = t.dataset.tab !== name);
   $('.panel-body').scrollTop = 0; schedule();
+  track('view_tab', { tab: name });
   if (name === 'about') import('./about3d.js').then(m => m.show($('#stage3d'))).catch(() => { $('#stage3d').hidden = true; }); // Easter egg
 }
 
@@ -1164,23 +1170,24 @@ function wire() {
   for (const el of $$('[data-k]')) {
     if (el.matches('.chips')) continue;
     const k = el.dataset.k;
-    el.oninput = el.onchange = () => {
+    el.oninput = el.onchange = ev => {
       st[k] = el.type === 'checkbox' ? el.checked : el.type === 'range' ? +el.value : el.value;
       if (k === 'textColor') st.autoText = false;
+      if (ev.type === 'change' && (el.tagName === 'SELECT' || el.type === 'checkbox')) track('set_option', { option: k, value: String(st[k]) });
       if (el.type === 'range' || el.type === 'color') { fontsSoon(); schedule(); } else sync();
     };
   }
   $('#linkTpl').onchange = e => { state.linkTpl = e.target.checked; if (state.linkTpl) { const t = cur().template; state.slides.forEach(s => s.template = t); } sync(); };
-  $('#pano').onchange = e => { state.pano = e.target.checked; sync(); };
-  $('#orient').onclick = () => { state.landscape = !state.landscape; sync(); };
+  $('#pano').onchange = e => { state.pano = e.target.checked; track('set_option', { option: 'pano', value: String(state.pano) }); sync(); };
+  $('#orient').onclick = () => { state.landscape = !state.landscape; track('change_orientation', { orientation: state.landscape ? 'landscape' : 'portrait' }); sync(); };
   $('#shuffle').onclick = () => {
     const th = THEMES[Math.random() * THEMES.length | 0], decos = Object.keys(CHIPS.deco);
     Object.assign(st, th.p, { deco: decos[Math.random() * decos.length | 0], angle: 100 + (Math.random() * 16 | 0) * 10 });
     sync();
   };
   $$('.tabs button').forEach(b => b.onclick = () => showTab(b.dataset.tab));
-  for (const id of ['#random', '#random2']) $(id).onclick = () => { remember(); randomize(); sync(true); };
-  $('#undo').onclick = () => { if (!undoSnap) return; const now = takeSnap(); putSnap(undoSnap); undoSnap = now; sync(true); };
+  for (const id of ['#random', '#random2']) $(id).onclick = () => { remember(); randomize(); track('randomize', { source: id === '#random' ? 'ideas_tab' : 'toolbar' }); sync(true); };
+  $('#undo').onclick = () => { if (!undoSnap) return; const now = takeSnap(); putSnap(undoSnap); undoSnap = now; track('undo'); sync(true); };
 
   const file = $('#file'); let pickFor = null;
   $$('#slots .slot').forEach(el => {
@@ -1195,7 +1202,7 @@ function wire() {
       const im = files[0] && await loadImage(files[0]).catch(() => null);
       if (!im) return;
       if (state.bgImage) URL.revokeObjectURL(state.bgImage.url);
-      state.bgImage = im; st.bgType = 'image'; db.set('bg', im.blob); sync();
+      state.bgImage = im; st.bgType = 'image'; db.set('bg', im.blob); track('set_background_photo'); sync();
     } else addFiles(files, target?.family, target?.slide);
   };
 
@@ -1207,10 +1214,11 @@ function wire() {
   addEventListener('drop', e => { e.preventDefault(); depth = 0; veil.classList.remove('on'); addFiles(e.dataTransfer.files); });
   addEventListener('paste', e => { if (e.clipboardData?.files.length) addFiles(e.clipboardData.files); });
   addEventListener('resize', schedule);
+  addEventListener('click', e => { const a = e.target.closest?.('a[href*="apps.apple.com"]'); if (a) track('support_click', { placement: a.classList.contains('credit') ? 'header' : a.classList.contains('cta') ? 'about_button' : 'footer' }); });
 
   $('#reset').onclick = async () => {
     if (!confirm('Start a new project? This clears every slide and screenshot saved on this device.')) return;
-    await db.clear();
+    await db.clear(); track('new_project');
     state.slides.forEach(s => Object.values(s.images).forEach(im => im && URL.revokeObjectURL(im.url)));
     Object.assign(state, { slides: [], sel: 0, bgImage: null, pano: false, landscape: false, linkTpl: true });
     Object.assign(st, BASE); state.slides.push(newSlide()); sync(true);
@@ -1222,12 +1230,13 @@ function wire() {
       const size = SIZES.find(s => s.family === state.family), [w, h] = dims(size);
       download(new Blob([await renderFile(state.sel, size, 'png')], { type: 'image/png' }), `screenshot-${String(state.sel + 1).padStart(2, '0')}-${w}x${h}.png`);
       toast(`Saved slide ${state.sel + 1} at ${w} × ${h}.`);
+      track('save_png', { device: state.family, size: `${w}x${h}`, template: cur().template });
     } catch (err) { console.error(err); toast('Could not save: ' + err.message); }
     btn.disabled = false;
   };
 
   const dlg = $('#exportDlg');
-  $('#openExport').onclick = () => { syncExport(); dlg.showModal(); };
+  $('#openExport').onclick = () => { syncExport(); dlg.showModal(); track('export_open', { slides: state.slides.length }); };
   $('#sizes').onchange = e => { SIZES.find(s => s.id === e.target.dataset.size).on = e.target.checked; syncExport(); saveSoon(); };
   $$('[data-quick]').forEach(b => b.onclick = () => {
     const q = b.dataset.quick;
@@ -1239,8 +1248,14 @@ function wire() {
     btn.disabled = true;
     try {
       download(await buildExport(fmt, (i, n) => btn.textContent = `Rendering ${i} / ${n}…`), 'store-screenshots.zip');
+      const on = SIZES.filter(s => s.on), stores = [...new Set(on.map(s => FAMILY[s.family].store))].sort().join('+');
+      track('export_zip', {
+        format: fmt, sizes: on.length, images: on.reduce((n, s) => n + slidesFor(s), 0), slides: state.slides.length, stores,
+        devices: [...new Set(on.map(s => s.family))].join(','), orientation: state.landscape ? 'landscape' : 'portrait',
+        with_screenshots: state.slides.filter(hasImages).length, templates: [...new Set(state.slides.map(s => s.template))].join(','),
+      });
       dlg.close(); toast('Exported — unzip and upload each folder to App Store Connect or Google Play Console.');
-    } catch (err) { console.error(err); toast('Export failed: ' + err.message); }
+    } catch (err) { console.error(err); toast('Export failed: ' + err.message); track('export_failed', { message: String(err.message).slice(0, 80) }); }
     btn.textContent = 'Download ZIP'; btn.disabled = false;
   };
 }

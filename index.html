@@ -23,6 +23,23 @@
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Screenshot Studio — Free App Store &amp; Google Play Screenshot Maker">
 <meta name="twitter:description" content="Design store-ready iPhone, iPad and Android screenshots in your browser. Free, no sign-up, no watermark.">
+<!-- Google Analytics 4. Paste the Measurement ID (G-XXXXXXXXXX) below; leave it empty to switch analytics off.
+     Only anonymous usage events are sent, never screenshots or text. It stays off on localhost and for
+     visitors whose browser sends Do Not Track or Global Privacy Control. -->
+<script>
+  (function () {
+    var GA_ID = 'G-DZPDE5HP6L';
+    var local = /^(localhost|127\.0\.0\.1|\[::1\]|)$/.test(location.hostname);
+    var optOut = navigator.doNotTrack === '1' || window.doNotTrack === '1' || navigator.globalPrivacyControl === true;
+    if (!GA_ID || local || optOut) return;
+    window.dataLayer = window.dataLayer || [];
+    window.gtag = function () { dataLayer.push(arguments); };
+    gtag('js', new Date());
+    gtag('config', GA_ID, { allow_google_signals: false, allow_ad_personalization_signals: false });
+    var s = document.createElement('script'); s.async = true; s.src = 'https://www.googletagmanager.com/gtag/js?id=' + GA_ID;
+    document.head.appendChild(s);
+  })();
+</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="styles.css">
@@ -58,7 +75,7 @@
       "@type": "FAQPage",
       "mainEntity": [
         { "@type": "Question", "name": "Is Screenshot Studio free?", "acceptedAnswer": { "@type": "Answer", "text": "Yes. It is free, has no sign-up and adds no watermark." } },
-        { "@type": "Question", "name": "Are my screenshots uploaded anywhere?", "acceptedAnswer": { "@type": "Answer", "text": "No. Images are rendered in your browser and saved only on your device." } },
+        { "@type": "Question", "name": "Are my screenshots uploaded anywhere?", "acceptedAnswer": { "@type": "Answer", "text": "No. Images are rendered in your browser and saved only on your device. Only anonymous usage statistics are collected." } },
         { "@type": "Question", "name": "What screenshot sizes does App Store Connect need?", "acceptedAnswer": { "@type": "Answer", "text": "A 6.9-inch iPhone set (1320 × 2868) covers iPhones, and a 13-inch iPad set (2064 × 2752) covers iPads. App Store Connect scales those down for smaller devices. Screenshot Studio exports these and every other accepted size." } },
         { "@type": "Question", "name": "What size are Google Play screenshots?", "acceptedAnswer": { "@type": "Answer", "text": "Google Play accepts 16:9 or 9:16 screenshots; 1080 × 1920 is the usual phone size, with 1200 × 1920 and 1600 × 2560 for tablets. Up to 8 screenshots per device type." } },
         { "@type": "Question", "name": "Can I make landscape screenshots?", "acceptedAnswer": { "@type": "Answer", "text": "Yes. Switch the orientation to Landscape and every size is exported rotated, which suits games and iPad apps." } },
@@ -250,7 +267,7 @@
         <details><summary>What sizes does App Store Connect need?</summary><p>A 6.9″ iPhone set (1320 × 2868) and a 13″ iPad set (2064 × 2752) are enough for most apps, because App Store Connect scales them down for smaller devices. You can upload up to 10 screenshots per size.</p></details>
         <details><summary>What size are Google Play screenshots?</summary><p>16:9 or 9:16, commonly 1080 × 1920 for phones, 1200 × 1920 for 7″ tablets and 1600 × 2560 for 10″ tablets. Google Play takes up to 8 per device type.</p></details>
         <details><summary>Can I make landscape screenshots for games?</summary><p>Yes. Tap Portrait above the preview to switch to Landscape. Every export size is rotated.</p></details>
-        <details><summary>Are my screenshots private?</summary><p>Yes. Everything is drawn in your browser. Your project is saved only on this device so you can come back to it.</p></details>
+        <details><summary>Are my screenshots private?</summary><p>Yes. Everything is drawn in your browser and your project is saved only on this device. The site counts anonymous usage (visits, which features are used, how many exports) with Google Analytics; your screenshots and text are never sent.</p></details>
         <details><summary>ใช้ภาษาไทยได้ไหม?</summary><p lang="th">ได้ พิมพ์หัวข้อภาษาไทยได้เลย มีฟอนต์ไทยให้เลือก เช่น Kanit, Prompt, Sarabun, Mitr และตัดคำภาษาไทยให้อัตโนมัติ ใช้ทำสกรีนช็อต App Store และ Google Play ได้ฟรี</p></details>
       </section>
       <section class="support">

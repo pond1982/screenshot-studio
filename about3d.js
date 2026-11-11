@@ -83,10 +83,11 @@ async function build(host) {
   new ResizeObserver(size).observe(host); size();
   let taps = 0;
   host.addEventListener('click', () => {
-    spinTo += PI * 2; say(++taps);
+    spinTo += PI * 2; say(++taps); window.track?.('character_tap', { taps });
     if (actor.clips) actor.next(); else { move = (move + 1) % MOVES.length; moveAt = (performance.now() - t0) / 1000 * 118 / 60; }
   });
   host.classList.add('ready');
+  window.track?.('character_shown', { kind: actor.clips ? 'model_clips' : actor.isModel ? 'model_coded' : 'cartoon' });
   return {
     enter() { enterAt = (performance.now() - t0) / 1000; last = enterAt; say(0); if (!raf) raf = requestAnimationFrame(tick); },
   };
@@ -150,7 +151,7 @@ async function loadModel(T, url, renderer, scene) {
     j.bone.quaternion.copy(pq.invert()).multiply(D).multiply(j.Ci).multiply(j.R);
   };
   return {
-    object,
+    object, isModel: true,
     pose(c) {
       sway.position.x = c.hx;
       rootQ.copy(object.getWorldQuaternion(new T.Quaternion()).invert());
