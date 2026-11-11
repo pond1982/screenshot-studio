@@ -893,7 +893,7 @@ function buildStatic() {
     for (const [val, label] of Object.entries(CHIPS[k])) {
       const b = document.createElement('button');
       b.type = 'button'; b.textContent = label; b.dataset.val = val;
-      b.onclick = () => { st[k] = /^\d+$/.test(val) ? +val : val; track('set_option', { option: k, value: String(val) }); sync(); };
+      b.onclick = () => { st[k] = /^\d+$/.test(val) ? +val : val; track('set_option', { option: k, choice: String(val) }); sync(); };
       el.append(b);
     }
   }
@@ -1173,12 +1173,12 @@ function wire() {
     el.oninput = el.onchange = ev => {
       st[k] = el.type === 'checkbox' ? el.checked : el.type === 'range' ? +el.value : el.value;
       if (k === 'textColor') st.autoText = false;
-      if (ev.type === 'change' && (el.tagName === 'SELECT' || el.type === 'checkbox')) track('set_option', { option: k, value: String(st[k]) });
+      if (ev.type === 'change' && (el.tagName === 'SELECT' || el.type === 'checkbox')) track('set_option', { option: k, choice: String(st[k]) });
       if (el.type === 'range' || el.type === 'color') { fontsSoon(); schedule(); } else sync();
     };
   }
   $('#linkTpl').onchange = e => { state.linkTpl = e.target.checked; if (state.linkTpl) { const t = cur().template; state.slides.forEach(s => s.template = t); } sync(); };
-  $('#pano').onchange = e => { state.pano = e.target.checked; track('set_option', { option: 'pano', value: String(state.pano) }); sync(); };
+  $('#pano').onchange = e => { state.pano = e.target.checked; track('set_option', { option: 'pano', choice: String(state.pano) }); sync(); };
   $('#orient').onclick = () => { state.landscape = !state.landscape; track('change_orientation', { orientation: state.landscape ? 'landscape' : 'portrait' }); sync(); };
   $('#shuffle').onclick = () => {
     const th = THEMES[Math.random() * THEMES.length | 0], decos = Object.keys(CHIPS.deco);
